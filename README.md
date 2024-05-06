@@ -6,8 +6,8 @@ This script updates DNS records for a specified domain using the Porkbun API. It
 
 1. **Clone the Repository:**
 ```bash
-  git clone <repository_url>
-  cd <repository_name>
+  git clone https://github.com/clertonraf/porkbun-ddns.git
+  cd porkbun-ddns
 ```
 
 2. **Configuration**
