@@ -1,2 +1,99 @@
-# porkbun-ddns
-Updates DNS records for a specified domain using the Porkbun API
+# DNS Update Script
+
+This script updates DNS records for a specified domain using the Porkbun API. It retrieves the current public IP address, compares it with the existing DNS records, and updates them if necessary.
+
+## Setup
+
+1. **Clone the Repository:**
+```bash
+  git clone <repository_url>
+  cd <repository_name>
+```
+
+2. **Configuration**
+
+Create a configuration file named **config.conf** with the following format
+```
+apikey=pk1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+secretapikey=sk1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+domain=example.com
+```
+
+3. **Run the Script**
+
+Execute the following command to run the script:
+```bash
+./dns_update.sh
+```
+
+## systemd Service
+
+You can set up the script as a systemd service to run it automatically. Here's how:
+
+1. Create a systemd service unit file:
+
+```bash
+sudo nano /etc/systemd/system/dns_update.service
+```
+Add the following content to the file:
+
+```bash
+[Unit]
+Description=DNS Update Script
+
+[Service]
+Type=simple
+ExecStart=/path/to/your/script/dns_update.sh
+
+[Install]
+WantedBy=multi-user.target
+```
+Replace /path/to/your/script/ with the actual path where your script dns_update.sh is located.
+
+2. Enable and Start the Service
+
+After saving the changes to dns_update.service, enable and start the service using the following commands
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable dns_update.service
+sudo systemctl start dns_update.service
+```
+
+3. Verify the Service Status
+
+You can verify that your service is running properly by checking its status
+```bash
+sudo systemctl status dns_update
+```
+
+4. Schedule the Service to Run Every Hour
+You can use systemd's timer functionality to schedule the service to run every hour. Create a timer unit file named dns_update.timer in the same directory as your service unit file:
+
+```bash
+sudo nano /etc/systemd/system/dns_update.timer
+```
+
+Add the following content to the file:
+
+```bash
+[Unit]
+Description=Run DNS Update Script Every Hour
+
+[Timer]
+OnCalendar=*-*-* *:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+This configuration will run the service every hour at the beginning of the hour
+
+6. Enable and Start the Timer
+
+After saving the changes to dns_update.timer, enable and start the timer:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable dns_update.timer
+sudo systemctl start dns_update.timer
+```
