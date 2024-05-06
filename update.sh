@@ -65,7 +65,7 @@ records=$(jq -c '.records | .[] | select(.type == "A" and .content != "'"$myip"'
 # Update DNS records
 while IFS= read -r record; do
     record_id=$(jq -r '.id' <<< "$record")
-    record_name=$(jq -r '.name' <<< "$record")
+    record_name=$(jq -r '.name' <<< "$record" | awk -F. '{print $1}')
     record_type=$(jq -r '.type' <<< "$record")
     record_ttl=$(jq -r '.ttl' <<< "$record")
 
