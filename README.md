@@ -26,6 +26,11 @@ Execute the following command to run the script:
 ./dns_update.sh
 ```
 
+To run the script without updating the DNS records, use the `--dry-run` option:
+```bash
+./dns_update.sh --dry-run
+```
+
 ## systemd Service
 
 You can set up the script as a systemd service to run it automatically. Here's how:

@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# Default dry run value
+dry_run=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        --dry-run)
+        dry_run=true
+        shift
+        ;;
+        *)
+        echo "Unknown option: $key"
+        exit 1
+        ;;
+    esac
+done
+
 # Read configuration from config.conf
 if [ -f "config.conf" ]; then
     source "config.conf"
@@ -51,13 +69,16 @@ while IFS= read -r record; do
     record_type=$(jq -r '.type' <<< "$record")
     record_ttl=$(jq -r '.ttl' <<< "$record")
 
-    echo "Updating record $record_id: $record_name $record_type $myip $record_ttl"
+    if [ "$dry_run" == "true" ]; then
+        echo "Dry run: Update record $record_id: $record_name $record_type $myip $record_ttl"
+    else
+        echo "Updating record $record_id: $record_name $record_type $myip $record_ttl"
+        raw_domain_update=$(call_api "https://porkbun.com/api/json/v3/dns/edit/$domain/$record_id" "{\"secretapikey\": \"$secretapikey\", \"apikey\": \"$apikey\", \"name\": \"$record_name\", \"type\": \"$record_type\", \"content\": \"$myip\", \"ttl\": \"$record_ttl\"}")
 
-    raw_domain_update=$(call_api "https://porkbun.com/api/json/v3/dns/edit/$domain/$record_id" "{\"secretapikey\": \"$secretapikey\", \"apikey\": \"$apikey\", \"name\": \"$record_name\", \"type\": \"$record_type\", \"content\": \"$myip\", \"ttl\": \"$record_ttl\"}")
-
-    domain_update_status=$(jq -r '.status' <<< "$raw_domain_update")
-    if [ "$domain_update_status" != "SUCCESS" ]; then
-        echo "Failed to update domain"
-        exit 1
+        domain_update_status=$(jq -r '.status' <<< "$raw_domain_update")
+        if [ "$domain_update_status" != "SUCCESS" ]; then
+            echo "Failed to update domain"
+            exit 1
+        fi
     fi
 done <<< "$records"
